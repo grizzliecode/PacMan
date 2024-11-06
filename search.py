@@ -76,24 +76,20 @@ def tinyMazeSearch(problem: SearchProblem) -> List[Directions]:
     return  [s, s, w, s, w, w, s, w]
 
 def dfs1(state, problem: SearchProblem, dir: list, visited: set):
+    visited.add(state)
     if problem.isGoalState(state):
         # print(dir)
-        return (dir, visited)
-    ok = False
+        return dir, visited
     for (successor, action, _) in problem.getSuccessors(state):
         if successor not in visited:
             visited.add(successor)
-            ok = True
             new_dir = copy.deepcopy(dir)
             new_dir.append(action)
-            (result, vis) = dfs1(successor, problem,new_dir,visited )
+            result, vis = dfs1(successor, problem,new_dir,visited )
             visited.union(vis)
             if result is not None:
                 return result, visited
-            else:
-                return None, visited
-    if ok == False:
-        return None, visited
+    return None, visited
 
 
 def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
@@ -114,6 +110,7 @@ def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
     dir = []
     visited = set()
     (dir,visited) = dfs1(problem.getStartState(), problem, dir, visited)
+    # print("dir:", dir)
     return dir
     # util.raiseNotDefined()
 
