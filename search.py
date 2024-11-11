@@ -4,13 +4,13 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-import copy
+
 
 """
 In search.py, you will implement generic search algorithms which are called by
@@ -75,22 +75,18 @@ def tinyMazeSearch(problem: SearchProblem) -> List[Directions]:
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def dfs1(state, problem: SearchProblem, dir: list, visited: set):
+def dfSearch(state, problem: SearchProblem, visited: set) -> (List[Directions], bool, set):
     visited.add(state)
     if problem.isGoalState(state):
-        # print(dir)
-        return dir, visited
-    for (successor, action, _) in problem.getSuccessors(state):
-        if successor not in visited:
-            visited.add(successor)
-            new_dir = copy.deepcopy(dir)
-            new_dir.append(action)
-            result, vis = dfs1(successor, problem,new_dir,visited )
-            visited.union(vis)
-            if result is not None:
-                return result, visited
-    return None, visited
-
+        return [], True, visited
+    nextMoves = problem.getSuccessors(state)
+    for move in nextMoves:
+        if move[0] not in visited:
+            result = dfSearch(move[0], problem, visited)
+            visited.union(result[2])
+            if result[1]:
+                return [move[1]] + result[0], True, visited
+    return [], False, visited
 
 def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
     """
@@ -106,18 +102,38 @@ def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
-    dir = []
+    result = dfSearch(problem.getStartState(), problem, set())
+    return result[0]
+
+def bfSearch(startState, problem: SearchProblem) -> List[Directions]:
     visited = set()
-    (dir,visited) = dfs1(problem.getStartState(), problem, dir, visited)
-    # print("dir:", dir)
-    return dir
-    # util.raiseNotDefined()
+    visited.add(startState)
+    queue = [(startState, [])]
+    while len(queue) > 0:
+        node = queue.pop(0)
+        state = node[0]
+        directions = node[1]
+        if problem.isGoalState(state):
+            return directions
+        nextMoves = problem.getSuccessors(state)
+        for move in nextMoves:
+            if move[0] not in visited:
+                visited.add(move[0])
+                queue.append((move[0], directions + [move[1]]))
+    return []
+
+    # nextMoves = problem.getSuccessors(startState)
+    # for move in nextMoves:
+    #     if move[0] not in visited:
+    #         result = bfSearch(move[0], problem)
+    #         visited.union(result)
+    #         return [move[1]] + result
+    # return []
 
 def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    result = bfSearch(problem.getStartState(), problem)
+    return result
 
 def uniformCostSearch(problem: SearchProblem) -> List[Directions]:
     """Search the node of least total cost first."""
