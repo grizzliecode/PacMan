@@ -122,14 +122,6 @@ def bfSearch(startState, problem: SearchProblem) -> List[Directions]:
                 queue.append((move[0], directions + [move[1]]))
     return []
 
-    # nextMoves = problem.getSuccessors(startState)
-    # for move in nextMoves:
-    #     if move[0] not in visited:
-    #         result = bfSearch(move[0], problem)
-    #         visited.union(result)
-    #         return [move[1]] + result
-    # return []
-
 def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
     """Search the shallowest nodes in the search tree first."""
     result = bfSearch(problem.getStartState(), problem)
@@ -147,10 +139,31 @@ def nullHeuristic(state, problem=None) -> float:
     """
     return 0
 
+def aStar(startState, problem: SearchProblem, heuristic) -> List[Directions]:
+    visited = set()
+    pq = util.PriorityQueue()
+    pq.push((startState, []), 0)
+    while not pq.isEmpty():
+        node = pq.pop()
+        state = node[0]
+        directions = node[1]
+        if problem.isGoalState(state):
+            return directions
+        if state in visited:
+            continue
+        visited.add(state)
+        nextMoves = problem.getSuccessors(state)
+        for move in nextMoves:
+            if move[0] not in visited:
+                nextDirections = directions + [move[1]]
+                nextCost = problem.getCostOfActions(nextDirections) + heuristic(move[0], problem)
+                pq.push((move[0], nextDirections), nextCost)
+    return []
+
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic) -> List[Directions]:
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return aStar(problem.getStartState(), problem, heuristic)
 
 # Abbreviations
 bfs = breadthFirstSearch
