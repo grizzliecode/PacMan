@@ -16,10 +16,12 @@
 In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
+import copy
 
 import util
 from game import Directions
 from typing import List
+
 
 class SearchProblem:
     """
@@ -64,8 +66,6 @@ class SearchProblem:
         util.raiseNotDefined()
 
 
-
-
 def tinyMazeSearch(problem: SearchProblem) -> List[Directions]:
     """
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
@@ -73,7 +73,8 @@ def tinyMazeSearch(problem: SearchProblem) -> List[Directions]:
     """
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 def dfSearch(state, problem: SearchProblem, visited: set) -> (List[Directions], bool, set):
     visited.add(state)
@@ -87,6 +88,7 @@ def dfSearch(state, problem: SearchProblem, visited: set) -> (List[Directions], 
             if result[1]:
                 return [move[1]] + result[0], True, visited
     return [], False, visited
+
 
 def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
     """
@@ -104,6 +106,7 @@ def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
     """
     result = dfSearch(problem.getStartState(), problem, set())
     return result[0]
+
 
 def bfSearch(startState, problem: SearchProblem) -> List[Directions]:
     visited = set()
@@ -127,10 +130,32 @@ def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
     result = bfSearch(problem.getStartState(), problem)
     return result
 
+
 def uniformCostSearch(problem: SearchProblem) -> List[Directions]:
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # util.raiseNotDefined()
+    result = []
+    visited = []
+    q = util.PriorityQueue()
+    # visited.append(problem.getStartState())
+    q.push((problem.getStartState(), []), 0)
+    while not q.isEmpty():
+        curr_state, actions = q.pop()
+        if problem.isGoalState(curr_state):
+            result = actions
+            break
+        if curr_state not in visited:
+            visited.append(curr_state)
+            for successor in problem.getSuccessors(curr_state):
+                new_action = copy.deepcopy(actions) + [successor[1]]
+                cost = problem.getCostOfActions(new_action)
+                    # print(successor[0], problem.getCostOfActions(new_action))
+                q.update((successor[0], new_action), cost)
+
+
+    return result
+
 
 def nullHeuristic(state, problem=None) -> float:
     """
@@ -164,6 +189,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic) -> List[Directi
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     return aStar(problem.getStartState(), problem, heuristic)
+
 
 # Abbreviations
 bfs = breadthFirstSearch
