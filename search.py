@@ -172,14 +172,14 @@ def aStar(startState, problem: SearchProblem, heuristic) -> List[Directions]:
         node = pq.pop()
         state = node[0]
         directions = node[1]
-        if problem.isGoalState(state):
-            return directions
         if state in visited:
             continue
         visited.add(state)
+        if problem.isGoalState(state):
+            return directions
         nextMoves = problem.getSuccessors(state)
         for move in nextMoves:
-            if move[0] not in visited:
+            # if move[0] not in visited:
                 nextDirections = directions + [move[1]]
                 nextCost = problem.getCostOfActions(nextDirections) + heuristic(move[0], problem)
                 pq.push((move[0], nextDirections), nextCost)
