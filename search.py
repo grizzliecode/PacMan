@@ -125,15 +125,6 @@ def bfSearch(startState, problem: SearchProblem) -> List[Directions]:
                 queue.append((move[0], directions + [move[1]]))
     return []
 
-    # nextMoves = problem.getSuccessors(startState)
-    # for move in nextMoves:
-    #     if move[0] not in visited:
-    #         result = bfSearch(move[0], problem)
-    #         visited.union(result)
-    #         return [move[1]] + result
-    # return []
-
-
 def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
     """Search the shallowest nodes in the search tree first."""
     result = bfSearch(problem.getStartState(), problem)
@@ -142,12 +133,9 @@ def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
 
 def uniformCostSearch(problem: SearchProblem) -> List[Directions]:
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    # util.raiseNotDefined()
     result = []
     visited = []
     q = util.PriorityQueue()
-    # visited.append(problem.getStartState())
     q.push((problem.getStartState(), []), 0)
     while not q.isEmpty():
         curr_state, actions = q.pop()
@@ -159,10 +147,7 @@ def uniformCostSearch(problem: SearchProblem) -> List[Directions]:
             for successor in problem.getSuccessors(curr_state):
                 new_action = copy.deepcopy(actions) + [successor[1]]
                 cost = problem.getCostOfActions(new_action)
-                    # print(successor[0], problem.getCostOfActions(new_action))
                 q.update((successor[0], new_action), cost)
-
-
     return result
 
 
@@ -173,11 +158,29 @@ def nullHeuristic(state, problem=None) -> float:
     """
     return 0
 
+def aStar(startState, problem: SearchProblem, heuristic) -> List[Directions]:
+    best = dict()
+    pq = util.PriorityQueue()
+    pq.push((startState, []), 0)
+    best[startState] = 0
+    while not pq.isEmpty():
+        node = pq.pop()
+        state = node[0]
+        directions = node[1]
+        if problem.isGoalState(state):
+            return directions
+        nextMoves = problem.getSuccessors(state)
+        for move in nextMoves:
+            nextDirections = directions + [move[1]]
+            nextCost = problem.getCostOfActions(nextDirections) + heuristic(move[0], problem)
+            if move[0] not in best or best[move[0]] > problem.getCostOfActions(nextDirections):
+                best[move[0]] = problem.getCostOfActions(nextDirections)
+                pq.update((move[0], nextDirections), nextCost)
+    return []
 
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic) -> List[Directions]:
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return aStar(problem.getStartState(), problem, heuristic)
 
 
 # Abbreviations
