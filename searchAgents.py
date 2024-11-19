@@ -349,6 +349,28 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
+def get_perm4(ls: list) -> list:
+    if len(ls) == 0: return []
+    if len(ls) == 1: return [ls[0]]
+    if len(ls) == 2:
+        return [[ls[0] , ls[1]] ,[ls[1], ls[0]]]
+    if len(ls) == 3:
+        res = []
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    if(i!=k and j!=i and k!=j):
+                        res.append([ls[i],ls[j],ls[k]])
+        return res
+    if len(ls) == 4:
+        res = []
+        for i in range(4):
+            for j in range(4):
+                for k in range(4):
+                    for r in range(4):
+                        if (i != k and j != i and r != i and k != j and r!=j and k!=r):
+                            res.append([ls[i], ls[j], ls[k], ls[r]])
+        return res
 
 
 def cornersHeuristic(state: Any, problem: CornersProblem):
@@ -366,10 +388,29 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    corners = problem.corners  # These are the corner coordinates
+    walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
+    position = state[0]
+    visited = state[1]
+    dist = 999999
+    unvisited_corners = []
+    for i in range(4):
+        if visited[i] == 0:
+            unvisited_corners.append(corners[i])
+    if 0 not in visited:
+        return 0
+    for perm in get_perm4(unvisited_corners):
+        new_dist = 0
+        prev = state[0]
+        for st in perm:
+            try:
+                new_dist += util.manhattanDistance(prev, st)
+            except:
+                print(prev)
+            prev = st
+        dist = min(dist, new_dist)
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
-
+    return dist  # Default to trivial solution
 
 
 class AStarCornersAgent(SearchAgent):
