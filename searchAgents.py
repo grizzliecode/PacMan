@@ -499,8 +499,61 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    def find(parent, i):
+        if parent[i] == None:
+            return i
+        return find(parent, parent[i])
+
+    def union(parent, rank, x, y):
+        xroot = find(parent, x)
+        yroot = find(parent, y)
+
+        if rank[xroot] < rank[yroot]:
+            parent[xroot] = yroot
+        elif rank[xroot] > rank[yroot]:
+            parent[yroot] = xroot
+        else :
+            parent[yroot] = xroot
+            rank[xroot] += 1
+
+    position, foodGrid = state
+    unvisited_foods = foodGrid.asList()
+
+    if not unvisited_foods:
+        return 0
+
+    graph = []
+    for i in range(len(unvisited_foods)):
+        for j in range(1, len(unvisited_foods)):
+            graph.append([unvisited_foods[i], unvisited_foods[j], util.manhattanDistance(unvisited_foods[i], unvisited_foods[j])])
+
+    mst_length = 0
+    i = 0
+    e = 0
+
+    graph = sorted(graph, key=lambda x:x[2])
+
+    parent = {}
+    rank = {}
+
+    for food in unvisited_foods:
+        parent[food] = None
+        rank[food] = 0
+
+    while e < len(unvisited_foods) - 1:
+        u, v, w = graph[i]
+        i += 1
+        x = find(parent, u)
+        y = find(parent, v)
+
+        if x != y:
+            e += 1
+            mst_length += w
+            union(parent, rank, x, y)
+
+    closest_food = min([util.manhattanDistance(position, food) for food in unvisited_foods])
+
+    return closest_food + mst_length
 
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -530,9 +583,7 @@ class ClosestDotSearchAgent(SearchAgent):
         food = gameState.getFood()
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
-
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.uniformCostSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -566,9 +617,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         complete the problem definition.
         """
         x,y = state
-
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:
     """
