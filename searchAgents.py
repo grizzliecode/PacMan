@@ -519,7 +519,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     position, foodGrid = state
     unvisited_foods = foodGrid.asList()
 
-    if unvisited_foods is None:
+    if not unvisited_foods:
         return 0
 
     graph = []
