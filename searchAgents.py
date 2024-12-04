@@ -519,7 +519,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     position, foodGrid = state
     unvisited_foods = foodGrid.asList()
 
-    if not unvisited_foods:
+    if unvisited_foods is None:
         return 0
 
     graph = []
@@ -527,7 +527,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
         for j in range(1, len(unvisited_foods)):
             graph.append([unvisited_foods[i], unvisited_foods[j], util.manhattanDistance(unvisited_foods[i], unvisited_foods[j])])
 
-    mst_length = 0
+    l = 0
     i = 0
     e = 0
 
@@ -540,7 +540,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
         parent[food] = None
         rank[food] = 0
 
-    while e < len(unvisited_foods) - 1:
+    while  len(unvisited_foods) - 1 > e:
         u, v, w = graph[i]
         i += 1
         x = find(parent, u)
@@ -548,12 +548,12 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
 
         if x != y:
             e += 1
-            mst_length += w
+            l += w
             union(parent, rank, x, y)
 
-    closest_food = min([util.manhattanDistance(position, food) for food in unvisited_foods])
+    f = min([util.manhattanDistance(position, food) for food in unvisited_foods])
 
-    return closest_food + mst_length
+    return f + l
 
 
 class ClosestDotSearchAgent(SearchAgent):
